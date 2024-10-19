@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: concourse-db
+  labels:
+    app: concourse-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: concourse-db
+
+  template:
+    metadata:
+      labels:
+        app: concourse-db
+
+    spec:
+      containers:
+      - name: concourse-db
+        image: postgres:15.8-alpine3.20
+
+        env:
+        - name: PGDATA
+          value: /var/lib/data/pgdata
+        - name: POSTGRES_DB
+          value: concourse
+        - name: POSTGRES_USER
+          value: concourse
+        - name: POSTGRES_PASSWORD
+          value: concourse
+        - name: PGPORT
+          value: "5432"
+
+        ports:
+        - name: concourse-db
+          containerPort: 5432
+
+      restartPolicy: Always
