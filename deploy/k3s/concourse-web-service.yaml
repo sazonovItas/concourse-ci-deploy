@@ -1,18 +1,20 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: concourse-web
+  name: concourse-web-svc
+  namespace: concourse
   labels:
     service: concourse-web
-
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: concourse-web
   ports:
-  - name: con-web-svc
+  - name: ci-web-http
     protocol: TCP
     port: 8080
     targetPort: concourse-web
-    nodePort: 32080
-
+  - name: ci-web-ssh
+    protocol: TCP
+    port: 2222
+    targetPort: concourse-ssh

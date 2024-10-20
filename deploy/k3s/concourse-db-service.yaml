@@ -1,17 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: concourse-db
+  name: concourse-db-svc
+  namespace: concourse
   labels:
     service: concourse-db
 spec:
+  type: ClusterIP
   selector:
     app: concourse-db
-
   ports:
-  - name: con-db-svc
+  - name: ci-db-svc
     protocol: TCP
-    port: 54321
+    port: 5432
     targetPort: concourse-db
-
-  

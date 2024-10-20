@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: concourse-worker
+  name: concourse-worker-deployment
+  namespace: concourse
   labels:
     app: concourse-worker
-
 spec:
   replicas: 1
   selector:
@@ -18,40 +18,32 @@ spec:
         app: concourse-worker
     spec:
       containers:
-      - name: concourse-worker
-        image: concourse/concourse
-        imagePullPolicy: IfNotPresent
-        args:
+      - args:
           - worker
         env:
         - name: CONCOURSE_TSA_HOST
-          value: concourse-ssh:52222
+          valueFrom:
+            configMapKeyRef:
+              name: concourse-config 
+              key: concourse.tsa.host
         - name: CONCOURSE_TSA_PUBLIC_KEY
           value: /concourse-keys/tsa_host_key.pub
         - name: CONCOURSE_RUNTIME
           value: containerd
         - name: CONCOURSE_TSA_WORKER_PRIVATE_KEY
           value: /concourse-keys/worker_key
-
         securityContext:
-          runAsUser: 0
-          runAsGroup: 0
-          runAsNonRoot: false
-          capabilities:
-            add: ["NET_ADMIN", "NET_RAW", "SYS_TIME"]
           privileged: true
-
-        ports:
-        - containerPort: 7777
-        - containerPort: 7788
-
+          capabilities:
+            add: ["NET_ADMIN", "NET_RAW"]
+        name: concourse-worker
+        image: concourse/concourse
+        imagePullPolicy: IfNotPresent
         volumeMounts:
-        - mountPath: /concourse-keys
-          name: cache-volume
-
+        - name: cache-volume
+          mountPath: /concourse-keys
       restartPolicy: Always
       volumes:
       - name: cache-volume
         secret:
           secretName: concourse-worker-keys
-      

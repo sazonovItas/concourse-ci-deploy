@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: concourse-web
+  name: concourse-web-deployment
+  namespace: concourse
   labels:
     app: concourse-web
-
 spec:
   replicas: 1
   selector:
@@ -12,17 +12,13 @@ spec:
       app: concourse-web
   strategy:
     type: Recreate
-
   template:
     metadata:
       labels:
         app: concourse-web
     spec:
       containers:
-      - name: concourse-web
-        image: concourse/concourse
-        imagePullPolicy: IfNotPresent
-        args:
+      - args:
           - web
         env:
         - name: CONCOURSE_ADD_LOCAL_USER
@@ -30,7 +26,10 @@ spec:
         - name: CONCOURSE_MAIN_TEAM_LOCAL_USER
           value: concourse
         - name: CONCOURSE_EXTERNAL_URL
-          value: http://debian.virt:32080
+          valueFrom: 
+            configMapKeyRef:
+              name: concourse-config
+              key: concourse.external.url
         - name: CONCOURSE_SESSION_SIGNING_KEY
           value: /concourse-keys/session_signing_key
         - name: CONCOURSE_TSA_HOST_KEY
@@ -38,28 +37,42 @@ spec:
         - name: CONCOURSE_TSA_AUTHORIZED_KEYS
           value: /concourse-keys/authorized_worker_keys
         - name: CONCOURSE_POSTGRES_HOST
-          value: concourse-db
+          valueFrom: 
+            configMapKeyRef:
+              name: concourse-config
+              key: concourse.postgres.host
         - name: CONCOURSE_POSTGRES_PORT
-          value: "5432"
+          valueFrom: 
+            configMapKeyRef:
+              name: concourse-config
+              key: concourse.postgres.port
         - name: CONCOURSE_POSTGRES_DATABASE
-          value: concourse
+          valueFrom:
+            configMapKeyRef:
+              name: concourse-config
+              key: concourse.postgres.db
         - name: CONCOURSE_POSTGRES_USER
-          value: concourse
+          valueFrom:
+            configMapKeyRef:
+              name: concourse-config
+              key: concourse.postgres.user
         - name: CONCOURSE_POSTGRES_PASSWORD
-          value: concourse
-
+          valueFrom:
+            configMapKeyRef:
+              name: concourse-config
+              key: concourse.postgres.password
+        name: concourse-web
+        image: concourse/concourse
+        imagePullPolicy: IfNotPresent
         ports:
         - name: concourse-web
           containerPort: 8080
         - name: concourse-ssh
           containerPort: 2222
-
         volumeMounts:
-        - mountPath: /concourse-keys
-          name: cache-volume
-
+        - name: cache-volume
+          mountPath: /concourse-keys
       volumes:
       - name: cache-volume
         secret:
           secretName: concourse-web-keys
-

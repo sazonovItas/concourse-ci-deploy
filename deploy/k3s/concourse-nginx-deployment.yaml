@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: concourse-nginx-deployment
+  namespace: concourse
+  labels:
+    app: concourse-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: concourse-nginx
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: concourse-nginx
+    spec:
+      containers:
+      - name: concourse-nginx
+        image: nginx:alpine3.20
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 443
+          name: concourse-nginx
+        volumeMounts:
+        - mountPath: /etc/nginx/
+          name: nginx-configs
+        - mountPath: /etc/nginx/ssl/ci.concourse.com
+          name: nginx-ssl-certs
+      restartPolicy: Always
+      volumes:
+      - name: nginx-ssl-certs 
+        secret:
+          secretName: concourse-ssl-certs 
+      - name: nginx-configs
+        configMap:
+          name: concourse-config
+          items:
+          - key: "concourse.nginx.conf"
+            path: "nginx.conf"
+          - key: "concourse.nginx.ci.concourse.com.conf"
+            path: "conf.d/ci.concourse.com.conf"
