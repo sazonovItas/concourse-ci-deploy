@@ -41,4 +41,11 @@ spec:
         ports:
         - name: concourse-db
           containerPort: 5432
+        volumeMounts:
+        - name: concourse-db-data
+          mountPath: /var/lib/data/pgdata
       restartPolicy: Always
+      volumes:
+      - name: concourse-db-data
+        persistentVolumeClaim:
+          claimName: concourse-db-pvc

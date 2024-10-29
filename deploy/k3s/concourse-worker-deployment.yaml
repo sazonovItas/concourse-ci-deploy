@@ -28,6 +28,8 @@ spec:
               key: concourse.tsa.host
         - name: CONCOURSE_TSA_PUBLIC_KEY
           value: /concourse-keys/tsa_host_key.pub
+        - name: CONCOURSE_TEAM
+          value: main
         - name: CONCOURSE_RUNTIME
           value: containerd
         - name: CONCOURSE_TSA_WORKER_PRIVATE_KEY
