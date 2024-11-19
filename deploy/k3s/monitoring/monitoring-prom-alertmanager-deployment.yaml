@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prom-alertmanager-deployment
+  namespace: monitoring
+  labels:
+    app: prom-alertmanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prom-alertmanager
+  template:
+    metadata:
+      labels:
+        app: prom-alertmanager
+    spec:
+      containers:
+      - name: prom-alertmanager
+        image: prom/alertmanager
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: prom-alert
+          containerPort: 9093
