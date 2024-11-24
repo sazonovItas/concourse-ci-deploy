@@ -1,3 +1,17 @@
+--- # PersistentVolumeClaim.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: concourse-worker-pvc
+  namespace: concourse
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
+--- # Deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:

@@ -1,3 +1,17 @@
+--- # PersistentVolumeClaim.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: concourse-db-pvc
+  namespace: concourse
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
+--- # Deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -49,3 +63,20 @@ spec:
       - name: concourse-db-data
         persistentVolumeClaim:
           claimName: concourse-db-pvc
+--- # Service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: concourse-db-svc
+  namespace: concourse
+  labels:
+    service: concourse-db
+spec:
+  type: ClusterIP
+  selector:
+    app: concourse-db
+  ports:
+  - name: ci-db-svc
+    protocol: TCP
+    port: 5432
+    targetPort: concourse-db

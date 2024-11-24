@@ -1,3 +1,17 @@
+--- # PersistentVoluemClaim.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: concourse-common-pvc
+  namespace: concourse
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
+--- # ConfigMap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
