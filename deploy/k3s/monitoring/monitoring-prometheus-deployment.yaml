@@ -18,8 +18,6 @@ data:
         kubernetes_sd_configs:
           - role: pod
         relabel_configs:
-          - action: labelmap
-            regex: __meta_kubernetes_pod_label_(.+)
           - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
             action: keep
             regex: true
@@ -44,10 +42,11 @@ data:
           - source_labels: [__meta_kubernetes_pod_container_image]
             action: replace
             target_label: pod_container_image
-          - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_pod_name]
-            separator: /
-            action: replace
-            target_label: job
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - source_labels: [namespace]
+            action: drop
+            regex: (kube-system|kube-node-lease)
 --- # Deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
