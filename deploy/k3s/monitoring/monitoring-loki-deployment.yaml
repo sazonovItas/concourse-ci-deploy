@@ -1,3 +1,38 @@
+--- # ConfigMap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-configmap
+  namespace: monitoring
+data:
+  loki-config.local.yaml: |
+    auth_enabled: false
+
+    server:
+      http_listen_port: 3100
+
+    common:
+      path_prefix: /tmp/loki
+      storage:
+        filesystem:
+          chunks_directory: /tmp/loki/chunks
+          rules_directory: /tmp/loki/rules
+      replication_factor: 1
+      ring:
+        instance_addr: 127.0.0.1
+        kvstore:
+          store: inmemory
+
+    schema_config:
+      configs:
+        - from: 2024-11-20
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+--- # Deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,6 +54,34 @@ spec:
       - name: loki
         image: grafana/loki
         imagePullPolicy: IfNotPresent
+        args:
+        - "-config.file=/etc/loki/loki-config.local.yaml"
+        - "-validation.allow-structured-metadata=false"
         ports:
         - name: loki
           containerPort: 3100
+        volumeMounts:
+        - name: loki-config
+          mountPath: /etc/loki
+          readOnly: true
+      volumes:
+      - name: loki-config
+        configMap:
+          name: loki-configmap
+--- # Service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-svc
+  namespace: monitoring
+  labels:
+    service: loki
+spec:
+  type: ClusterIP 
+  selector:
+    app: loki
+  ports:
+  - name: loki-svc
+    protocol: TCP
+    port: 3100
+    targetPort: loki
