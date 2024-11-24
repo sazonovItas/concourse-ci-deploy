@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-KEYS_DIR=./keys
+KEYS_DIR=keys
 
 mkdir -p $KEYS_DIR/web $KEYS_DIR/worker
 

@@ -1,0 +1,49 @@
+--- # ConfigMap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prom-alert-configmap
+  namespace: monitoring
+data: {}
+--- # Deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prom-alert-deployment
+  namespace: monitoring
+  labels:
+    app: prom-alert
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prom-alert
+  template:
+    metadata:
+      labels:
+        app: prom-alert
+    spec:
+      containers:
+      - name: prom-alert
+        image: prom/alertmanager
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: prom-alert
+          containerPort: 9093
+--- # Service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prom-alert-svc
+  namespace: monitoring
+  labels:
+    service: prom-alert
+spec:
+  type: ClusterIP
+  selector:
+    app: prom-alert
+  ports:
+  - name: prom-alert-svc
+    protocol: TCP
+    port: 9093
+    targetPort: prom-alert

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CERTS_DIR=./certs
+CERTS_DIR=certs
 
 OPENSSL_GENRSA_FLAGS=""
 openssl genrsa ${OPENSSL_GENRSA_FLAGS:-} -out $CERTS_DIR/server.key 2048
