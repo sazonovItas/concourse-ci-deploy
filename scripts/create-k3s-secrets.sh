@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-K3S_NAMESPACE=concourse
-CONCOURSE_WEB_KEYS=concourse-web-keys
+set -e
+
+K3S_NAMESPACE=${K3S_NAMESPACE:=concourse}
+CONCOURSE_WEB_KEYS=${CONCOURSE_WEB_KEYS:=concourse-web-keys}
 kubectl get -n $K3S_NAMESPACE secret $CONCOURSE_WEB_KEYS &> /dev/null || \
 	kubectl create -n $K3S_NAMESPACE secret generic $CONCOURSE_WEB_KEYS \
 	--from-file=keys/web/authorized_worker_keys \

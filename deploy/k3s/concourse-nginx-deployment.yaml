@@ -28,8 +28,10 @@ spec:
         volumeMounts:
         - mountPath: /etc/nginx/
           name: nginx-configs
+          readOnly: true
         - mountPath: /etc/nginx/ssl/ci.concourse.com
           name: nginx-ssl-certs
+          readOnly: true
       restartPolicy: Always
       volumes:
       - name: nginx-ssl-certs 
