@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "[BUILDING INITRD]"
+
+varcheck INITRD_DIR LINUX_DIR INITRD_FILENAME
+
+cd ${INITRD_DIR}
+find . | cpio -o -H newc > ${INITRD_FILENAME}
+cd -
+
+mv ${INITRD_DIR}/${INITRD_FILENAME} ${LINUX_DIR}/${INITRD_FILENAME}
