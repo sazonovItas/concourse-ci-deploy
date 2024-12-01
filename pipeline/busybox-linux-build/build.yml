@@ -1,0 +1,13 @@
+resources:
+- name: busybox-linux-build-repo
+  type: git
+  icon: github
+  check_every: 24h
+  source:
+    uri: https://github.com/sazonovItas/concourse-ci-deploy
+
+jobs:
+- name: build
+  public: true
+  plan:
+  - get: busybox-linux-build-repo
