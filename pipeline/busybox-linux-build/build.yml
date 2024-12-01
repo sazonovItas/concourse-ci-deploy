@@ -1,13 +1,51 @@
 resources:
-- name: busybox-linux-build-repo
-  type: git
-  icon: github
-  check_every: 24h
-  source:
-    uri: https://github.com/sazonovItas/concourse-ci-deploy
+  - name: busybox-linux-build-repo
+    type: git
+    icon: github
+    check_every: 24h
+    source:
+      uri: https://github.com/sazonovItas/concourse-ci-deploy
+      branch: main
+
+var_sources:
+  - name: build-from-repo-scripts
+    type: dummy
+    config:
+      vars:
+        linux_filename: vmlinuz
+        initrd_filename: initrd-busybox.img
 
 jobs:
-- name: build
-  public: true
-  plan:
-  - get: busybox-linux-build-repo
+  - name: build-busybox-linux-from-repo-scripts
+    public: true
+    plan:
+    - get: busybox-linux-build-repo
+      trigger: true
+    - task: build-busybox-linux
+      config:
+        inputs:
+          - name: busybox-linux-build-repo
+            path: build-repo
+        outputs:
+          - name: busybox-linux-build
+            path: linux-build
+        platform: linux
+        image_resource:
+          type: registry-image
+          source: { repository: debian, tag: 12.0 }
+        params:
+          LINUX_FILENAME: "((build-from-repo-scripts:linux_filename))"
+          INITRD_FILENAME: "((build-from-repo-scripts:initrd_filename))"
+        run:
+          path: bash 
+          args: 
+            - -exc
+            - |
+              apt update
+              apt install -y curl make build-essential bc bison flex libssl-dev libelf-dev cpio fdisk extlinux dosfstools
+              BASH_ENV="${PWD}/build-repo/pipeline/busybox-linux-build/scripts/bash-env/env"
+              LINUX_DIR="${PWD}/linux-build"
+              mkdir -p workspace
+              cp -r ./build-repo/pipeline/busybox-linux-build/scripts/* ./workspace/
+              cd workspace
+              LINUX_DIR="${LINUX_DIR}" BASH_ENV=${BASH_ENV} ./build-linux.sh
