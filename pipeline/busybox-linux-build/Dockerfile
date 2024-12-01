@@ -23,4 +23,5 @@ RUN  ln -s $APP/scripts/start-linux.sh /usr/bin/start &&\
 
 WORKDIR $APP/scripts
 
+ENTRYPOINT [ "/bin/bash", "-c" ]
 CMD [ "build" ]
