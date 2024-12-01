@@ -11,5 +11,3 @@ for script in $(ls ${BUILD_STEPS_DIR}/${BUILD_USING_STEPS}); do
   . $script
   popd
 done
-
-. ./start-linux.sh
